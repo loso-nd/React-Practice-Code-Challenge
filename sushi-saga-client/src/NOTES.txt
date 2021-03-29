@@ -1,0 +1,102 @@
+
+!1. Sushi list is properly received from the server
+!2. Only 4 sushi are rendered at a time
+
+** {App} **
+- We want to keep our state as simple and shallow as possible. 
+- Concerns (Overall Sushi, sushi that the user is seeing, # of plates already consummed, and $ used to purchase sushi and whats left)
+- Based on the README.md we know that were are receiving a list of sushi and only rendering 4 at a time. Our state will take a key called sushi assigned to an empty arr, which will represent all of our sushi called from the API. 
+- How to deal with the idea of the 4 sushi that the user sees - currentSushi is set to an empty arr to represent what the user is seeing. 
+- Add an emptyPlate arr to the state to keep track of plates eaten or purchased.
+- Add wallet, how much money the user decides to spend
+
+    ?Goal:
+    - All of our sushi will start off in the sushi array, and as our sushi is presented to the customer then it will be taken out of our sushi arr and placed into currentSushi arr, which wil go to the presentational component that the user sees. I dont have to keep track on index.
+
+    !3 places where the sushi will take place (arr of all sushi, what the user does not see | arr of currentSushi, what is being displayed to the user | arr of emptyPlates, what the user decides to eat.)
+
+
+    ** Fetch **
+
+    - We have control of the update cycle - how fast do I get the next ability to intereact with the application. I want to minimize the number of fetches that I make to the API. Therefore, I can make a call that gets all the sushi at once. 
+
+    -Add a FetchSushi method, fetch all our sushi from the API, and call setState inside our second .then() setting our sushi to allSushi callback as it appears in the callback promise. 
+
+    ** componentDidMount **
+
+    - Best place call fetchSushi() mehtod. While the page loads we are executing a step in bewtween which calls the fetchSushi() to perform while the page loads. We can confirm this happed by checking our dev tools and note we haved added sushi objects to our sushi arr
+
+    - Now that we have access to our sushi Objs, how can we use this to display the 4 suchi objects to the user? Meaning how do we get 4 sushi from the sushi[] into the currentSushi[]
+    - Note that we want the first 4 sushi to be moved into the currentsushi[] immediately and that the user will be something similar with the add  more button. Rather than write the same logic twice, which takes the first 4 sushi and puts them in the currentSushi arr -- we create a user method getNextSushi to present sushi to our user. 
+
+    ** getNextSushi **
+    - Responsible for getting the sushi fro the sushi arr and moving it into the currentSushi arr. but only the first 4. 
+    - THis will be a setState bc we are basing this stat on the state that existed before. 
+    !(preState)
+    !sushi: grab allSushi in the original array but omiiting the first 4, start with the 5th
+    !currentSushi: opposite from the top. We grab the first 4
+    ?How do we use this? We want to run this method soon as the page loads or the fetch is done. The best place to execute this method is inside the fetchSushi
+
+    - fetch the API > convert > setState to allSushi > add a callback to the setState, which allows us to run another method as soon as its done setting the state.
+    - Recall setState is asychronous, the second method will run as soon as the first one is complete.
+
+    - We can confirm this is actually working by checking our react dev tools, to see within the state of our application sushi objects have been pushed from the sushi arr into the currentSushi
+
+    ** Interact with our UI **
+    - We want to start showing sushi to the user by inteacting with my <Sushi Container />
+    - pass props to the <Sushi Container currentSushi={currentSushi} />
+
+
+** Sushi Container **
+
+- We now have access to our currentSushi and would like to me use of them. 
+?-Can we use deconstruction here? How can we extract logic out of logic
+- Create a renderSushi method that takes our currentSushi arr, and then map over that arr and return a single <Sushi /> at a time. The return of the <Sushi /> is passed props sushi={sushi} from the <Sushi /> in order to display details of a single sushi.
+- Invoke renderSushi inside our return to display to the page. 
+
+
+** Sushi **
+
+- functional / presentational component. 
+- deconstruct our props and add those props where they belong inside our returnn.
+
+** More Button **
+
+-Ability to go to the next 4 sushi on my list by user interaaction. 
+- Luckily we already have a getNextSushi() inside our {App} so we can use this method to accomplish this. We can pass in the prop to our <SushiContainer />
+
+    ** SushiContainer **
+    - From here, here dyanamically have access to the <MoreButton /> and we want to continue passing the onGetNextSushi props to our onClick which is stored inside our <MoreButton />
+    !deconstruct did not work here
+
+- I have the ability to deconstruct my props here, and then pass the name of our props into the onClick={onGetNextSushi} event.  
+
+?Goal - With this I should be able to clik the button to see the next load of sushi appear on the page. 
+
+** Deliverable **
+
+?- I still want my clients to be able to purchase sushi, eat sushi > have that plate show on the table.
+?- I still want to to check the users wallet against the purchased sushi to ensure they can pay for the sushi selected.
+
+- Start by allowing the user to to client on a sushi and allowing it ot be eaten. To do this I need to wire up a state change in app on a sushi component -- We can staart at the top of the Dom or the boom pArt OF THE TREE.
+
+
+** Sushi **
+-working for the Parent down to the child but starting backwards by called the method that will be created in <Sushi /> passed into the onClick{} and passed up to the parent.
+- Create a method called hanhleEatSushi and pass that into the click 
+- I need to send some identifying info about the sushi up to app in order to work with it. So we can use the onEatSushi(.id)
+
+{/* Not able to to deconstruct {props.onGetNextSushi} */}
+
+** SushiContaner **
+
+- Inside the renderSushi method we want to pass the onEatSushi as props into our <Sushi />
+- deconstruct my props, this is where our sushi was created. 
+
+** App **
+
+- Back to our <SushiContainer /> and we want to pass the onEatSushi as props
+- of course we want to create a method called eatSush(id) with a param id or arbitray parm called eatenSushi this id or arbitray pram will identify which suchi was selected. 
+- Inside this method, we add in a setstate, with 2 concerns. The first is to modify the plate. by eating a plate we expect our empty plates arr to increase
+
+
